@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Horizonte: simulador para investidores</title>
+<meta name="description" content="Simule o crescimento de uma carteira de ações, obrigações e dinheiro, veja o intervalo de resultados possíveis e teste-a contra crises reais.">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#EDF2F0;--surface:#fff;--ink:#11283B;--muted:#566B7A;--accent:#0E7C7B;--b1:rgba(14,124,123,.14);--b2:rgba(14,124,123,.28);--border:#CBD8D3;--put:#B7791F;--bad:#B4472F;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -89,10 +90,10 @@ details p{color:var(--muted);margin:8px 0 0;max-width:70ch}
 <div class="legend"><span><b style="background:var(--accent)"></b>Ações</span><span><b style="background:var(--put)"></b>Obrigações</span><span><b style="background:var(--border)"></b>Dinheiro <span id="cv"></span></span></div></div>
 <label class="check"><input type="checkbox" id="real"> Mostrar em valores de hoje (desconta 2,5% de inflação)</label>
 </section>
-<section class="panel" aria-live="polite">
-<p class="sentence" id="sentence"></p>
+<section class="panel">
+<p class="sentence" id="sentence" aria-live="polite"></p>
 <svg class="chart" id="chart" viewBox="0 0 800 380" role="img" aria-label="Intervalo de valores possíveis da carteira ao longo do tempo"></svg>
-<div class="key"><span class="k1">Intervalo provável (percentis 10–90)</span><span class="k2">Metade central (25–75)</span><span class="k3">Resultado mediano</span><span class="k4">O que depositou</span></div>
+<div class="key"><span class="k1">Intervalo provável (percentis 10–90)</span><span class="k2">Metade central (25–75)</span><span class="k3">Resultado mediano</span><span class="k4">O que depositou</span></div><p class="note" style="margin:10px 0 0">Como ler: em cada 10 futuros simulados, 8 ficam dentro da faixa clara e 5 dentro da faixa escura. A linha central é o resultado do meio.</p>
 <div class="hover" id="hover">Passe o cursor pelo gráfico para ver cada ano.</div>
 <div class="stats" id="stats"></div>
 </section></div>
@@ -100,7 +101,7 @@ details p{color:var(--muted);margin:8px 0 0;max-width:70ch}
 
 <main id="p-crise" hidden>
 <h1>Como a sua carteira teria aguentado as grandes crises?</h1>
-<p class="lede">Aplicamos quedas reais do mercado norte-americano à mistura que escolher. Os valores são aproximados e servem para ilustrar.</p>
+<p class="lede">Aplicamos quedas reais do mercado norte-americano à mistura que escolher. As quedas e os tempos de recuperação da bolsa são do índice S&amp;P 500 (preços de fecho); os valores de obrigações e dinheiro são estimativas arredondadas. Servem para ilustrar.</p>
 <section class="panel"><div class="two">
 <div><label for="cmix">Carteira</label><select id="cmix"><option value="30,50">Cautelosa (30% ações, 50% obrigações)</option><option value="60,35" selected>Equilibrada (60% ações, 35% obrigações)</option><option value="85,10">Crescimento (85% ações, 10% obrigações)</option><option value="100,0">Só ações</option></select></div>
 <div><label for="camt">Valor investido (US$)</label><input id="camt" type="number" min="0" step="1000" value="50000"></div></div></section>
@@ -131,7 +132,7 @@ details p{color:var(--muted);margin:8px 0 0;max-width:70ch}
 <div class="row"><label for="fy">Prazo <span class="val" id="fyv"></span></label><input id="fy" type="range" min="5" max="40" value="30"></div>
 <div class="row"><label for="ff">Comissão anual <span class="val" id="ffv"></span></label><input id="ff" type="range" min="0.2" max="3" step="0.1" value="1.0"></div>
 </section>
-<section class="panel" aria-live="polite"><p class="sentence" id="fsent"></p><div class="stats" id="fstats"></div></section></div>
+<section class="panel"><p class="sentence" id="fsent" aria-live="polite"></p><div class="stats" id="fstats"></div></section></div>
 </main>
 
 <main id="p-sobre" hidden>
@@ -192,9 +193,9 @@ ch.addEventListener("mouseleave",()=>{const c=$("cur");if(c)c.setAttribute("opac
 document.querySelectorAll(".presets button").forEach(b=>b.addEventListener("click",()=>{$("stocks").value=b.dataset.s;$("bonds").value=b.dataset.b;run()}));
 
 /* Teste de crise: valores aproximados (índice S&P 500, obrigações norte-americanas, bilhetes do Tesouro) */
-const CR=[["Bolha tecnológica","mar. 2000 a out. 2002",-49,30,10,"A bolsa levou cerca de 7 anos a voltar ao máximo anterior."],
+const CR=[["Bolha tecnológica","mar. 2000 a out. 2002",-49,27,10,"A bolsa levou cerca de 7 anos a voltar ao máximo anterior."],
 ["Crise financeira","out. 2007 a mar. 2009",-57,6,3,"A bolsa levou cerca de 5 anos e meio a voltar ao máximo anterior."],
-["Pandemia","fev. a mar. 2020",-34,-1,0,"A bolsa recuperou em cerca de 5 meses."],
+["Pandemia","fev. a mar. 2020",-34,-2,0,"A bolsa levou cerca de 6 meses a voltar ao máximo anterior."],
 ["Inflação e subida de juros","jan. a out. 2022",-25,-15,1,"A bolsa levou cerca de 2 anos a recuperar; as obrigações também caíram."]];
 function crise(){const[s,b]=$("cmix").value.split(",").map(Number),c=100-s-b,a=+$("camt").value||0;
 $("cres").innerHTML=CR.map(e=>{const r=(s*e[2]+b*e[3]+c*e[4])/100,v=a*(1+r/100);
